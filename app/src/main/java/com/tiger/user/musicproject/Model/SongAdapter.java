@@ -24,6 +24,7 @@ import java.util.ArrayList;
 
 import kaaes.spotify.webapi.android.models.Track;
 
+// TODO: 11/11/2018 Since you cant play a single track,might have to change to album list instead 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder>{
     private static final String TAG = "SongAdapter";
     private ArrayList<Track> songs;
@@ -47,13 +48,13 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder>{
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int i) {
         Log.d(TAG, "onBindViewHolder: called");
         Picasso.get().load(songs.get(i).album.images.get(0).url).into(viewHolder.song_image);
-        viewHolder.song_title.setText(songs.get(i).name);
+        viewHolder.song_title.setText(songs.get(i).album.name);
         viewHolder.song_artist.setText(songs.get(i).artists.get(0).name);
         viewHolder.relative_songlist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "onClick: "+ songs.get(i).name);
-                Toast.makeText(mContext,songs.get(i).name,Toast.LENGTH_SHORT).show();
+                //Toast.makeText(mContext,songs.get(i).album.name,Toast.LENGTH_SHORT).show();
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
                 Bundle data = new Bundle();
                 data.putString("Song_ID",songs.get(i).album.id);

@@ -1,6 +1,9 @@
 package com.tiger.user.musicproject;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,17 +14,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.protocol.client.CallResult;
+import com.spotify.protocol.client.ErrorCallback;
+import com.spotify.protocol.client.Result;
+import com.spotify.protocol.types.PlayerState;
+import com.tiger.user.musicproject.Management.MyBroadcastReceiver;
 import com.tiger.user.musicproject.Reference.PlayingMusic;
 
+import java.util.concurrent.TimeUnit;
 
+// TODO: 11/11/2018 Find a way to get current track(Possible Solution:BroadcastReceiver)
 public class Player extends Fragment {
     private static final String CLIENT_ID = "8941735733ef4a848d2cd0434fef264a";
     private static final String REDIRECT_URI = "com.tiger.user.musicproject://callback";
     private SpotifyAppRemote mSpotifyAppRemote;
+    private TextView current_song;
+    ProgressBar progressBar;
 
     View v;
     @Nullable
@@ -29,6 +43,12 @@ public class Player extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_player, container, false);
         ImageButton play_pause = (ImageButton) v.findViewById(R.id.play_pause);
+        ImageButton skip_forward = (ImageButton)v.findViewById(R.id.skip_forward);
+        ImageButton skip_backward = (ImageButton)v.findViewById(R.id.skip_back);
+        current_song = (TextView)v.findViewById(R.id.current_song);
+        progressBar = (ProgressBar)v.findViewById(R.id.progressBar2);
+        progressBar.setVisibility(View.VISIBLE);
+        current_song.setText("");
 
         final Bundle stream_id = getArguments();
         if (stream_id != null) {
@@ -38,6 +58,22 @@ public class Player extends Fragment {
                 public void onClick(View view) {
                     if (mSpotifyAppRemote.isConnected()) {
                         PlayMusic(stream);
+                    }
+                }
+            });
+            skip_forward.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (mSpotifyAppRemote.isConnected()) {
+                        mSpotifyAppRemote.getPlayerApi().skipNext();
+                    }
+                }
+            });
+            skip_backward.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (mSpotifyAppRemote.isConnected()) {
+                        mSpotifyAppRemote.getPlayerApi().skipPrevious();
                     }
                 }
             });
@@ -80,5 +116,4 @@ public class Player extends Fragment {
         SpotifyAppRemote.disconnect(mSpotifyAppRemote);
 
     }
-
 }

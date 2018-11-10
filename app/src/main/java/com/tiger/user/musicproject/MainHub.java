@@ -11,13 +11,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 
-import com.spotify.android.appremote.api.ConnectionParams;
-import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
+// TODO: 11/11/2018 Set Home page to display when app start
 public class MainHub extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,HomePage.OnDataPass{
     //**********SPOTIFY************//
@@ -47,8 +44,6 @@ public class MainHub extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         //*********Get Access Token*************
         AUTH_TOKEN = getIntent().getStringExtra(LoginActivity.AUTH_TOKEN);
-
-
     }
 
     //*******************Drawer UI stuffs****************//

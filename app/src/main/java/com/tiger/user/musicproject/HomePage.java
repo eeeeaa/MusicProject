@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.tiger.user.musicproject.Management.CredentialsHandler;
@@ -31,6 +32,7 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
+// TODO: 11/11/2018 Get new song list,one with more songs/albums 
 public class HomePage extends Fragment {
     private RecyclerView homeView;
     private String AUTH_TOKEN;
@@ -46,6 +48,8 @@ public class HomePage extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.home_page, container, false);
         homeView = (RecyclerView)v.findViewById(R.id.tracks_view);
+        final ProgressBar progressBar = (ProgressBar)v.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
         Bundle data = getArguments();
         if(data != null){
             AUTH_TOKEN = data.getString("TOKEN");
@@ -58,6 +62,7 @@ public class HomePage extends Fragment {
                 @Override
                 public void success(Pager<Track> trackPager, Response response) {
                     for(Track track:trackPager.items){
+                        progressBar.setVisibility(View.GONE);
                         Log.d("Track name",track.name);
                         Log.d("Track album",track.album.id);
                         tracks.add(track);
