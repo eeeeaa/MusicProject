@@ -32,7 +32,7 @@ public class Player extends Fragment {
 
         final Bundle stream_id = getArguments();
         if (stream_id != null) {
-            final String stream = stream_id.getString("Stream");
+            final String stream = stream_id.getString("Song_ID");
             play_pause.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -46,7 +46,7 @@ public class Player extends Fragment {
     }
 
     private void PlayMusic(String mus_id) {
-        Log.d("FinalURL","spotify:track:" + mus_id);
+        Log.d("FinalURL","spotify:album:" + mus_id);
         mSpotifyAppRemote.getPlayerApi().play("spotify:album:" + mus_id);
 
     }

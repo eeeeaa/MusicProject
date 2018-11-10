@@ -47,18 +47,7 @@ public class MainHub extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         //*********Get Access Token*************
         AUTH_TOKEN = getIntent().getStringExtra(LoginActivity.AUTH_TOKEN);
-        Button playtest = (Button)findViewById(R.id.playt);
-        playtest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FragmentManager fm = getSupportFragmentManager();
-                Bundle stream_id = new Bundle();
-                stream_id.putString("Stream",recieved_data);
-                Player player = new Player();
-                player.setArguments(stream_id);
-                fm.beginTransaction().replace(R.id.player_frame,player).commit();
-            }
-        });
+
 
     }
 
