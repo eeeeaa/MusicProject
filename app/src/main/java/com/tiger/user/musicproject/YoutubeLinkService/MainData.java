@@ -1,0 +1,28 @@
+package com.tiger.user.musicproject.YoutubeLinkService;
+
+import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
+
+public class MainData{
+    @SerializedName("info")
+    public Info info;
+    @SerializedName("url")
+    public String URL;
+    public class Info{
+        @SerializedName("formats")
+        public List<Format> format;
+
+        public List<Format> getFormat() {
+            return format;
+        }
+    }
+    public class Format{
+        @SerializedName("url")
+        public String url;
+
+        public String getUrl() {
+            return url;
+        }
+    }
+}

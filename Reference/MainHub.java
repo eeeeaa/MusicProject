@@ -1,6 +1,5 @@
-package com.tiger.user.musicproject;
+package com.tiger.user.musicproject.Reference;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -14,14 +13,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.tiger.user.musicproject.Management.GoogleGlobalCredential;
+import com.tiger.user.musicproject.About;
+import com.tiger.user.musicproject.FavoritePage;
+import com.tiger.user.musicproject.HomePage;
+import com.tiger.user.musicproject.LoginActivity;
+import com.tiger.user.musicproject.Player;
+import com.tiger.user.musicproject.R;
 
-// TODO: 11/11/2018 Set Home page to display when app start
 public class MainHub extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,HomePage.OnDataPass{
+    //**********SPOTIFY************//
+    private static final String CLIENT_ID = "8941735733ef4a848d2cd0434fef264a";
+    private static final String REDIRECT_URI = "com.tiger.user.musicproject://callback";
+    private SpotifyAppRemote mSpotifyAppRemote;
+    private String AUTH_TOKEN;
+    public static Player mPlayer;
+    private String recieved_data;
+    //*****************************//
 
-   private String AUTH_TOKEN;
-   private String TAG = "MainHub";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +47,8 @@ public class MainHub extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        GoogleGlobalCredential googleGlobalCredential = ((GoogleGlobalCredential)getApplicationContext());
-        AUTH_TOKEN = googleGlobalCredential.getmCredential().getSelectedAccountName();
-        Log.d(TAG, "Testing: " + AUTH_TOKEN);
-
+        //*********Get Access Token*************
+        AUTH_TOKEN = getIntent().getStringExtra(LoginActivity.AUTH_TOKEN);
     }
 
     //*******************Drawer UI stuffs****************//
@@ -84,7 +92,10 @@ public class MainHub extends AppCompatActivity
         FragmentManager fm = getSupportFragmentManager();
 
         if (id == R.id.nav_home_page) {
+            Bundle args = new Bundle();
+            args.putString("TOKEN", AUTH_TOKEN);
             HomePage home = new HomePage();
+            home.setArguments(args);
             fm.beginTransaction().replace(R.id.content_frame,home).commit();
 
         } else if (id == R.id.nav_favorite_page) {
@@ -104,8 +115,45 @@ public class MainHub extends AppCompatActivity
     //***********Getting Data from Fragment Interface*********//
     public void onDataPass(String data) {
         Log.d("LOG ",data);
-        //recieved_data = data;
+        recieved_data = data;
     }
     //********************************************************//
 
+    //*******************Spotify stuffs********************//
+    /*protected void onStart() {
+        super.onStart();
+        ConnectionParams connectionParams =
+                new ConnectionParams.Builder(CLIENT_ID)
+                        .setRedirectUri(REDIRECT_URI)
+                        .showAuthView(true)
+                        .build();
+
+        SpotifyAppRemote.connect(this, connectionParams,
+                new Connector.ConnectionListener() {
+
+                    public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+                        mSpotifyAppRemote = spotifyAppRemote;
+                        Log.d("MainActivity", "Connected! Yay!");
+
+                    }
+
+                    public void onFailure(Throwable throwable) {
+                        Log.e("MyActivity", throwable.getMessage(), throwable);
+
+                    }
+                });
+    }
+
+    private void connected(String album_id) {
+        mSpotifyAppRemote.getPlayerApi().play("spotify:album:" + album_id);
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
+
+    }*/
+    //*********************************************************//
 }

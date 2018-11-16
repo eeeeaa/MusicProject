@@ -1,9 +1,8 @@
 package com.tiger.user.musicproject.Model;
 
 import android.content.Context;
-import android.os.Bundle;
+import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,25 +11,21 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-
-import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.PlaylistItem;
 import com.squareup.picasso.Picasso;
-import com.tiger.user.musicproject.HomePage;
-import com.tiger.user.musicproject.Player;
 import com.tiger.user.musicproject.R;
+import com.tiger.user.musicproject.Test_activity;
 
 import java.util.ArrayList;
 
-import kaaes.spotify.webapi.android.models.Track;
-
-public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder>{
+public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHolder>{
     private static final String TAG = "SongAdapter";
-    private ArrayList<SearchResult> songs;
+    public static final String VIDEO_ID = "VideoID";
+    private ArrayList<PlaylistItem> songs;
     private Context mContext;
 
-    public SongAdapter(ArrayList<SearchResult> songs, Context mContext) {
+    public PlayListAdapter(ArrayList<PlaylistItem> songs, Context mContext) {
         this.songs = songs;
         this.mContext = mContext;
     }
@@ -53,7 +48,10 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder>{
         viewHolder.relative_songlist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext,songs.get(i).getSnippet().getTitle(),Toast.LENGTH_LONG).show();
+                //Toast.makeText(mContext,songs.get(i).getSnippet().getTitle(),Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(mContext,Test_activity.class);
+                intent.putExtra(VIDEO_ID,songs.get(i).getSnippet().getResourceId().getVideoId());
+                mContext.startActivity(intent);
             }
         });
         /*Picasso.get().load(songs.get(i).album.images.get(0).url).into(viewHolder.song_image);

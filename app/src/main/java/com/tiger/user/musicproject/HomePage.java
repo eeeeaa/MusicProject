@@ -1,44 +1,32 @@
 package com.tiger.user.musicproject;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import com.tiger.user.musicproject.Management.CredentialsHandler;
-import com.tiger.user.musicproject.Model.SongAdapter;
+import com.google.api.services.youtube.YouTube;
+import com.google.api.services.youtube.model.PlaylistItem;
+import com.tiger.user.musicproject.Management.RecyclerViewInitializer;
+import com.tiger.user.musicproject.Management.YoutubeCaller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.Track;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
-
-// TODO: 11/11/2018 Get new song list,one with more songs/albums 
 public class HomePage extends Fragment {
     private RecyclerView homeView;
-    private String AUTH_TOKEN;
-    private Button test;
-    public static SpotifyService spotifyService;
     private String TAG = "HUB";
+    private YouTube youTube;
+    private  YouTube.Search.List query;
+    public static final String KEY = "AIzaSyC96AxLHwohCVm9lQhJu5PVsV_hBjFRhNY";
+    public static final String PACKAGENAME = "com.tiger.user.musicproject";
+    public static final String SHA1 = "5F:F5:25:18:40:CE:15:1E:55:F3:50:31:D0:35:98:8C:55:9C:88:3E";
 
     View v;
     OnDataPass dataPasser;
@@ -47,38 +35,18 @@ public class HomePage extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.home_page, container, false);
-        homeView = (RecyclerView)v.findViewById(R.id.tracks_view);
-        final ProgressBar progressBar = (ProgressBar)v.findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.VISIBLE);
-        Bundle data = getArguments();
-        if(data != null){
-            AUTH_TOKEN = data.getString("TOKEN");
-            Log.d("TOKEN",AUTH_TOKEN);
-            setServiceAPI();
-            Map<String,Object> options = new HashMap<String,Object>();
-            options.put("limit",20);
-            final ArrayList<Track> tracks = new ArrayList<Track>();
-            spotifyService.getTopTracks(options, new Callback<Pager<Track>>() {
-                @Override
-                public void success(Pager<Track> trackPager, Response response) {
-                    for(Track track:trackPager.items){
-                        progressBar.setVisibility(View.GONE);
-                        Log.d("Track name",track.name);
-                        Log.d("Track album",track.album.id);
-                        tracks.add(track);
-                    }
-                    //passData(tracks.get(0).album.id);
-                    Log.d("Track ID",tracks.get(0).album.id);
-                    initRecyclerView(getContext(),tracks);
-                }
+        Button getList = (Button)v.findViewById(R.id.getlist);
+        ProgressBar progressBar = (ProgressBar)v.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
+        getList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                YoutubeCaller youtubeCaller = new YoutubeCaller(getContext(),KEY,PACKAGENAME,SHA1);
+                final ArrayList<PlaylistItem> outputList = youtubeCaller.GetVideoFromPlaylistID("RDEMd7yV4DVtFoa61a7qkl5eCg",30);
+                RecyclerViewInitializer.initRecyclerViewPlayList(getContext(),v,outputList);
+            }
+        });
 
-                @Override
-                public void failure(RetrofitError error) {
-
-                }
-            });
-
-        }
         return v;
     }
     ////////////Passing Data/////////////////
@@ -93,23 +61,5 @@ public class HomePage extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         dataPasser = (OnDataPass) context;
-    }
-
-    //////////////Spotify///////////////////
-    private void setServiceAPI(){
-        Log.d(TAG, "Setting Spotify API Service");
-        SpotifyApi api = new SpotifyApi();
-        api.setAccessToken(CredentialsHandler.getToken(getContext()));
-        spotifyService = api.getService();
-    }
-    ///////////////////////////////////////
-
-    /////////////////RecyclerView Initialize/////////////
-    private void initRecyclerView(Context context,ArrayList<Track> tracks){
-        Log.d(TAG, "initRecyclerView: started");
-        RecyclerView recyclerView = v.findViewById(R.id.tracks_view);
-        SongAdapter songAdapter = new SongAdapter(tracks,context);
-        recyclerView.setAdapter(songAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
     }
 }

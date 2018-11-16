@@ -1,4 +1,4 @@
-package com.tiger.user.musicproject;
+package com.tiger.user.musicproject.Reference;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,7 +8,9 @@ import android.util.Log;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
+import com.tiger.user.musicproject.MainHub;
 import com.tiger.user.musicproject.Management.CredentialsHandler;
+import com.tiger.user.musicproject.R;
 
 import java.util.concurrent.TimeUnit;
 

@@ -1,4 +1,4 @@
-package com.tiger.user.musicproject;
+package com.tiger.user.musicproject.Reference;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,6 +15,8 @@ import android.widget.TextView;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.tiger.user.musicproject.R;
+
 
 public class Player extends Fragment {
     private static final String CLIENT_ID = "8941735733ef4a848d2cd0434fef264a";
