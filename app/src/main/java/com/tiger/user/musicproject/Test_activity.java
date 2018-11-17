@@ -38,26 +38,26 @@ public class Test_activity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(data != null){
+                    String output = "none";
                     video_id = data.getStringExtra(PlayListAdapter.VIDEO_ID);
                     TextView id = (TextView)findViewById(R.id.content_2);
                     id.setText(video_id);
-                    Thread thread = new Thread(new Runnable() {
+                    class Loader implements Runnable{
+                        volatile String output;
                         @Override
                         public void run() {
                             GetFileUrl getFileUrl = GetFileUrl.retrofit.create(GetFileUrl.class);
                             Call<MainData> call = getFileUrl.Info(YOUTUBE_URL + video_id);
+                            Log.d(TAG, "GetDirectLink: " + YOUTUBE_URL + video_id);
                             call.enqueue(new Callback<MainData>() {
-                                String uri = "";
                                 @Override
                                 public void onResponse(Call<MainData> call, Response<MainData> response) {
-                                    uri = response.body().info.getFormat().get(0).getUrl();
-                                    Log.d(TAG, "onResponse: "+ response.code());
-                                    class updateData implements Runnable{
+                                    output = response.body().info.getFormat().get(0).getUrl();
+                                    class updateUI implements Runnable{
                                         String output;
-                                        updateData(String output){
+                                        public updateUI(String output){
                                             this.output = output;
                                         }
-
                                         @Override
                                         public void run() {
                                             TextView content = (TextView)findViewById(R.id.content_1);
@@ -65,7 +65,8 @@ public class Test_activity extends AppCompatActivity {
                                         }
                                     }
                                     Handler handler = new Handler();
-                                    handler.post(new updateData(uri));
+                                    handler.post(new updateUI(output));
+                                    Log.d(TAG, "onResponse: "+ response.code());
                                 }
 
                                 @Override
@@ -75,7 +76,8 @@ public class Test_activity extends AppCompatActivity {
                                 }
                             });
                         }
-                    });
+                    }
+                    Thread thread = new Thread(new Loader());
                     thread.start();
                 }
             }

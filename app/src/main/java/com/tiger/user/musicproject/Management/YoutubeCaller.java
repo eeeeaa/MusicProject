@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.google.android.gms.auth.GoogleAuthException;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -30,6 +31,7 @@ public class YoutubeCaller {
     private static String KEY;
     private static String PACKAGENAME;
     private static String SHA1;
+    public boolean isFinish;
     public YoutubeCaller(Context context,String KEY,String PACKAGENAME,String SHA1){
         this.mContext = context;
         this.KEY = KEY;
@@ -37,12 +39,13 @@ public class YoutubeCaller {
         this.SHA1 = SHA1;
     }
 
-    public ArrayList<SearchResult> GetVideoFromQuery (final String keywords, final long MaxResult){
+    public ArrayList<SearchResult> GetVideoFromQuery (final String keywords, final long MaxResult,final String Token){
         ArrayList<SearchResult> outputList = new ArrayList<SearchResult>();
         class Query implements Runnable{
             volatile ArrayList<SearchResult> temp = new ArrayList<SearchResult>();
             @Override
             public void run() {
+                isFinish = false;
                 youTube = new YouTube.Builder(new NetHttpTransport(),new JacksonFactory(),new HttpRequestInitializer(){
 
                     @Override
@@ -53,7 +56,14 @@ public class YoutubeCaller {
                 }).setApplicationName("MusicProject").build();
                 try {
                     query = youTube.search().list("id,snippet");
-                    query.setKey(KEY);
+                    if(Token != null){
+                        query.setOauthToken(Token);
+                        Log.d(TAG, "Q Use Access Token");
+                    }else {
+                        query.setKey(KEY);
+                        Log.d(TAG, "Q use Key");
+                    }
+
                     query.setType("video");
                     query.setFields("items(id/kind,id/videoId,snippet/title,snippet/description,snippet/thumbnails/high/url)");
                     query.setQ(keywords);
@@ -77,6 +87,7 @@ public class YoutubeCaller {
         try {
             thread.join();
             outputList = query.getResult();
+            isFinish = true;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -87,12 +98,13 @@ public class YoutubeCaller {
             return outputList;
         }
     }
-    public ArrayList<PlaylistItem> GetVideoFromPlaylistID(final String playlist_id, final long MaxResult){
+    public ArrayList<PlaylistItem> GetVideoFromPlaylistID(final String playlist_id, final long MaxResult,final String Token){
         ArrayList<PlaylistItem> outputList = new ArrayList<PlaylistItem>();
         class Query implements Runnable{
             volatile ArrayList<PlaylistItem> temp = new ArrayList<PlaylistItem>();
             @Override
             public void run() {
+                isFinish = false;
                 youTube = new YouTube.Builder(new NetHttpTransport(),new JacksonFactory(),new HttpRequestInitializer(){
 
                     @Override
@@ -104,7 +116,13 @@ public class YoutubeCaller {
                 try {
                     playlistItem = youTube.playlistItems().list("id,snippet");
                     playlistItem.setPlaylistId(playlist_id);
-                    playlistItem.setKey(KEY);
+                    if(Token != null){
+                        playlistItem.setOauthToken(Token);
+                        Log.d(TAG, "P Use Access Token");
+                    }else {
+                        playlistItem.setKey(KEY);
+                        Log.d(TAG, "P use Key");
+                    }
                     playlistItem.setFields("items(snippet/resourceId/kind,snippet/resourceId/videoId," +
                             "snippet/title,snippet/description,snippet/thumbnails/high/url)");
                     playlistItem.setMaxResults(MaxResult);
@@ -128,6 +146,7 @@ public class YoutubeCaller {
         try {
             thread.join();
             outputList = query.getResult();
+            isFinish =true;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

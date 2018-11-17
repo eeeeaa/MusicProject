@@ -69,7 +69,6 @@ public class LoginActivityYOU extends AppCompatActivity implements EasyPermissio
     /////////////////////////////////////
 
     private TextView status;
-    private ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,17 +77,8 @@ public class LoginActivityYOU extends AppCompatActivity implements EasyPermissio
                 .setBackOff(new ExponentialBackOff());
         final Button getAc = (Button)findViewById(R.id.getAc);
         status = (TextView)findViewById(R.id.status01);
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Call youtube API...");
-        getAc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                progressDialog.show();
-                getAc.setEnabled(false);
-                CheckConditions();
-                getAc.setEnabled(true);
-            }
-        });
+        CheckConditions();
+        CheckConditions();
     }
     private void CheckConditions() {
         if (! isGooglePlayServicesAvailable()) {
@@ -96,11 +86,9 @@ public class LoginActivityYOU extends AppCompatActivity implements EasyPermissio
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
         } else if (! isDeviceOnline()) {
-            progressDialog.hide();
             status.setText("No network connection available.");
         } else {
             //new MakeRequestTask(mCredential).execute();
-            progressDialog.hide();
             status.setText("Everything OK!");
             GoogleGlobalCredential googleGlobalCredential =  ((GoogleGlobalCredential)getApplicationContext());
             googleGlobalCredential.setmCredential(mCredential);
@@ -138,7 +126,6 @@ public class LoginActivityYOU extends AppCompatActivity implements EasyPermissio
         switch(requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
-                    progressDialog.hide();
                     status.setText(
                             "This app requires Google Play Services. Please install " +
                                     "Google Play Services on your device and relaunch this app.");

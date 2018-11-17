@@ -1,6 +1,8 @@
 package com.tiger.user.musicproject;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -13,14 +15,18 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.auth.GoogleAuthException;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.tiger.user.musicproject.Management.GoogleGlobalCredential;
+import com.tiger.user.musicproject.Management.YoutubeCaller;
+
+import java.io.IOException;
 
 // TODO: 11/11/2018 Set Home page to display when app start
 public class MainHub extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,HomePage.OnDataPass{
 
-   private String AUTH_TOKEN;
+   public static final String TOKEN_TAG = "AuthToken";
    private String TAG = "MainHub";
 
     @Override
@@ -34,13 +40,30 @@ public class MainHub extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        GoogleGlobalCredential googleGlobalCredential = ((GoogleGlobalCredential)getApplicationContext());
-        AUTH_TOKEN = googleGlobalCredential.getmCredential().getSelectedAccountName();
-        Log.d(TAG, "Testing: " + AUTH_TOKEN);
+        class Caller implements Runnable{
+            private String Token;
+            @Override
+            public void run() {
+                try {
+                    GoogleGlobalCredential googleGlobalCredential = ((GoogleGlobalCredential) getApplicationContext());
+                    Token = googleGlobalCredential.getmCredential().getToken();
+                    SharedPreferences.Editor editor = getSharedPreferences(TOKEN_TAG,MODE_PRIVATE).edit();
+                    editor.putString(TOKEN_TAG,Token);
+                    editor.apply();
+                    Log.d(TAG, "Testing: " + Token);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (GoogleAuthException e) {
+                    e.printStackTrace();
+                }
 
+            }
+        }
+        Caller caller = new Caller();
+        Thread thread = new Thread(caller);
+        thread.start();
     }
 
     //*******************Drawer UI stuffs****************//
@@ -107,5 +130,4 @@ public class MainHub extends AppCompatActivity
         //recieved_data = data;
     }
     //********************************************************//
-
 }

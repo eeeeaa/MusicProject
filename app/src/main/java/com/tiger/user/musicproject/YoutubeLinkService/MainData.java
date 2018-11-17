@@ -11,7 +11,7 @@ public class MainData{
     public String URL;
     public class Info{
         @SerializedName("formats")
-        public List<Format> format;
+        private List<Format> format;
 
         public List<Format> getFormat() {
             return format;
@@ -19,7 +19,7 @@ public class MainData{
     }
     public class Format{
         @SerializedName("url")
-        public String url;
+        private String url;
 
         public String getUrl() {
             return url;

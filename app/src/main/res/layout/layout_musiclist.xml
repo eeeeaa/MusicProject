@@ -31,6 +31,7 @@
         android:layout_marginLeft="30dp"
         android:layout_marginTop="10dp"
         android:layout_toRightOf="@id/song_image"
-        android:text="Artist" />
+        android:text="Artist"
+        tools:text="dummy" />
 
 </RelativeLayout>

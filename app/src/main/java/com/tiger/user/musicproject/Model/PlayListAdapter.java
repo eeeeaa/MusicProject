@@ -45,6 +45,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
         Picasso.get().load(songs.get(i).getSnippet().getThumbnails().getHigh().getUrl()).into(viewHolder.song_image);
         viewHolder.song_title.setText(songs.get(i).getSnippet().getTitle());
         viewHolder.song_artist.setText(songs.get(i).getSnippet().getChannelTitle());
+        Log.d(TAG, "onBindViewHolder: "+ songs.get(i).getSnippet().getChannelTitle());
         viewHolder.relative_songlist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
