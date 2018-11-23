@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,8 +18,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.api.services.youtube.model.SearchResult;
@@ -28,16 +30,15 @@ import com.tiger.user.musicproject.Model.SongAdapter;
 
 import java.util.ArrayList;
 
-public class HomePage extends Fragment {
-    private String TAG = "HUB";
-
+public class SearchPage extends Fragment{
     View v;
-    OnDataPass dataPasser;
+    private String TAG = "SearchPage";
+    private SearchView searchView;
     ProgressBar progressBar;
     RecyclerViewInitializer recyclerViewInitializer;
     YoutubeCaller youtubeCaller;
     SwipeRefreshLayout swipeRefreshLayout;
-    String query = null;
+    private String query;
 
     /////////////////////MENU///////////////////////
     @Override
@@ -48,29 +49,60 @@ public class HomePage extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_general, menu);
+        inflater.inflate(R.menu.menu_search, menu);
         super.onCreateOptionsMenu(menu, inflater);
+        MenuItem item = menu.findItem(R.id.search_view);
+        searchView = new SearchView(((AppCompatActivity) getActivity()).getSupportActionBar().getThemedContext());
+        MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW | MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
+        MenuItemCompat.setActionView(item, searchView);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.d(TAG, "onQueryTextSubmit: " + query);
+                setQuery(query);
+                new loadingList().execute();
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                SongAdapter adapter = recyclerViewInitializer.getSongAdapter();
+                if(adapter != null){
+                    adapter.clear();
+                }
+                return false;
+            }
+        });
+        searchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+        SongAdapter adapter = recyclerViewInitializer.getSongAdapter();
         switch (item.getItemId()) {
             case R.id.menu_forward:
-                if(YoutubeCaller.getNextPageToken() != null){
-                    new updateList_next().execute();
+                if(adapter!=null) {
+                    if (YoutubeCaller.getNextPageToken() != null && !adapter.isEmpty()) {
+                        new SearchPage.updateList_next().execute();
+                    }
                 }
                 return true;
 
             case R.id.menu_backward:
-                if(YoutubeCaller.getPrevPageToken() != null){
-                    new updateList_prev().execute();
+                if(adapter!=null) {
+                    if (YoutubeCaller.getPrevPageToken() != null && !adapter.isEmpty()) {
+                        new SearchPage.updateList_prev().execute();
+                    }
                 }
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
     ////////////////////////////////////////////////////////
-
 
     public void setQuery(String query) {
         this.query = query;
@@ -83,14 +115,15 @@ public class HomePage extends Fragment {
             return null;
         }
     }
+    ////////////////////////////////////////////////////////
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        v = inflater.inflate(R.layout.home_page, container, false);
-        setQuery("Synthwave");
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(R.string.home_page);
+        v = inflater.inflate(R.layout.search_page,container,false);
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Search");
         progressBar = (ProgressBar)v.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
         recyclerViewInitializer = new RecyclerViewInitializer();
         youtubeCaller = new YoutubeCaller(getContext(),GoogleGlobalCredential.getKEY(),
                 GoogleGlobalCredential.getPACKAGENAME(),GoogleGlobalCredential.getSHA1());
@@ -105,11 +138,11 @@ public class HomePage extends Fragment {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-        new loadingList().execute();
         return v;
     }
 
-    //////////////LOAD DATA///////////////////
+    ///////////////////LOADING DATA//////////////////////
+
     public class loadingList extends AsyncTask<ArrayList<SearchResult>, Void, ArrayList<SearchResult>> {
         @Override
         protected ArrayList<SearchResult> doInBackground(ArrayList<SearchResult>... arrayLists) {
@@ -131,7 +164,6 @@ public class HomePage extends Fragment {
                 Toast.makeText(getContext(),"Connection Error",Toast.LENGTH_SHORT).show();
             }else {
                 recyclerViewInitializer.initRecyclerViewQuery(getContext(),v,items);
-                SongAdapter adapter = recyclerViewInitializer.getSongAdapter();
             }
             swipeRefreshLayout.setRefreshing(false);
 
@@ -257,20 +289,5 @@ public class HomePage extends Fragment {
             progressBar.setVisibility(View.VISIBLE);
         }
     }
-    ////////////////////////////////////////////////////////
-
-    ////////////Passing Data/////////////////
-    public interface OnDataPass {
-        public void onDataPass(String data);
-    }
-    public void passData(String data) {
-
-        dataPasser.onDataPass(data);
-    }
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        dataPasser = (OnDataPass) context;
-    }
-    /////////////////////////////////////////
-
+    //////////////////////////////////////////////////////
 }

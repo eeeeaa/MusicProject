@@ -6,7 +6,11 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="colorButtonNormal">@color/colorPrimary</item>
+        <item name="colorButtonNormal">@color/buttonColor</item>
+        <item name="android:background">@color/backgroundColor</item>
+        <item name="android:windowBackground">@color/backgroundColor</item>
+        <item name="android:textColor">@color/textColor</item>
+        <item name="buttonStyle">@style/buttonStyle</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -17,5 +21,12 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="NavigationView">
+        <item name="android:textColorSecondary">@color/buttonColor</item>
+        <item name="android:listDivider">@color/colorPrimary</item>
+    </style>
+    <style name="buttonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/buttonshape</item>
+    </style>
 
 </resources>

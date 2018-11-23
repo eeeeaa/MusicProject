@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.tiger.user.musicproject.Model.PlayListAdapter;
+import com.tiger.user.musicproject.Model.SongAdapter;
 import com.tiger.user.musicproject.YoutubeLinkService.GetFileUrl;
 import com.tiger.user.musicproject.YoutubeLinkService.MainData;
 import com.tiger.user.musicproject.YoutubeLinkService.YoutubeStreamer;
@@ -39,7 +40,7 @@ public class Test_activity extends AppCompatActivity {
             public void onClick(View view) {
                 if(data != null){
                     String output = "none";
-                    video_id = data.getStringExtra(PlayListAdapter.VIDEO_ID);
+                    video_id = data.getStringExtra(SongAdapter.VIDEO_ID);
                     TextView id = (TextView)findViewById(R.id.content_2);
                     id.setText(video_id);
                     class Loader implements Runnable{

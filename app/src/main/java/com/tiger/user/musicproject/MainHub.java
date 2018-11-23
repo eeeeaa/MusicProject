@@ -1,7 +1,5 @@
 package com.tiger.user.musicproject;
 
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -14,11 +12,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.google.android.gms.auth.GoogleAuthException;
-import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.tiger.user.musicproject.Management.GoogleGlobalCredential;
-import com.tiger.user.musicproject.Management.YoutubeCaller;
 
 import java.io.IOException;
 
@@ -35,12 +32,13 @@ public class MainHub extends AppCompatActivity
         setContentView(R.layout.activity_main_hub);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         class Caller implements Runnable{
             private String Token;
@@ -49,10 +47,13 @@ public class MainHub extends AppCompatActivity
                 try {
                     GoogleGlobalCredential googleGlobalCredential = ((GoogleGlobalCredential) getApplicationContext());
                     Token = googleGlobalCredential.getmCredential().getToken();
+                    String email = googleGlobalCredential.getmCredential().getSelectedAccountName();
                     SharedPreferences.Editor editor = getSharedPreferences(TOKEN_TAG,MODE_PRIVATE).edit();
                     editor.putString(TOKEN_TAG,Token);
                     editor.apply();
-                    Log.d(TAG, "Testing: " + Token);
+                    TextView username = (TextView) navigationView.findViewById(R.id.username_bar);
+                    username.setText(email);
+                    //Log.d(TAG, "Testing: " + Token);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (GoogleAuthException e) {
@@ -77,28 +78,6 @@ public class MainHub extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main_hub, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -116,6 +95,13 @@ public class MainHub extends AppCompatActivity
         } else if (id == R.id.nav_about) {
             fm.beginTransaction().replace(R.id.content_frame,new About()).commit();
 
+        } else if(id == R.id.nav_playlist_1){
+            fm.beginTransaction().replace(R.id.content_frame,new Playlist_1()).commit();
+
+        }else if(id == R.id.nav_playlist_2){
+            fm.beginTransaction().replace(R.id.content_frame,new Playlist_2()).commit();
+        }else if(id == R.id.nav_search_page){
+            fm.beginTransaction().replace(R.id.content_frame,new SearchPage()).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

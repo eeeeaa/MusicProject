@@ -1,8 +1,10 @@
 package com.tiger.user.musicproject.Management;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 import com.google.api.services.youtube.model.PlaylistItem;
@@ -14,17 +16,30 @@ import com.tiger.user.musicproject.R;
 import java.util.ArrayList;
 
 public class RecyclerViewInitializer {
+    private static String TAG = "RecyclerViewInit";
+    private SongAdapter songAdapter;
+    private PlayListAdapter playListAdapter;
 
-    public static void initRecyclerViewQuery(Context context,View v,ArrayList<SearchResult> songs){
+    public void initRecyclerViewQuery(Context context,View v,ArrayList<SearchResult> songs){
         RecyclerView recyclerView = v.findViewById(R.id.tracks_view);
-        SongAdapter songAdapter = new SongAdapter(songs,context);
+        songAdapter = new SongAdapter(songs,context);
         recyclerView.setAdapter(songAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
+        recyclerView.setLayoutManager(linearLayoutManager);
     }
-    public static void initRecyclerViewPlayList(Context context,View v,ArrayList<PlaylistItem> songs){
+    public void initRecyclerViewPlayList(Context context,View v,ArrayList<PlaylistItem> songs){
         RecyclerView recyclerView = v.findViewById(R.id.tracks_view);
-        PlayListAdapter playListAdapter = new PlayListAdapter(songs,context);
+        playListAdapter = new PlayListAdapter(songs,context);
         recyclerView.setAdapter(playListAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
+        recyclerView.setLayoutManager(linearLayoutManager);
+    }
+
+    public PlayListAdapter getPlayListAdapter() {
+        return playListAdapter;
+    }
+
+    public SongAdapter getSongAdapter() {
+        return songAdapter;
     }
 }

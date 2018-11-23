@@ -20,24 +20,22 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.PlaylistItem;
 import com.tiger.user.musicproject.Management.GoogleGlobalCredential;
 import com.tiger.user.musicproject.Management.RecyclerViewInitializer;
 import com.tiger.user.musicproject.Management.YoutubeCaller;
-import com.tiger.user.musicproject.Model.SongAdapter;
+import com.tiger.user.musicproject.Model.PlayListAdapter;
 
 import java.util.ArrayList;
 
-public class HomePage extends Fragment {
-    private String TAG = "HUB";
-
+public class Playlist_1 extends Fragment {
+    String TAG = "Playlist1";
+    String playlist_id;
     View v;
-    OnDataPass dataPasser;
     ProgressBar progressBar;
-    RecyclerViewInitializer recyclerViewInitializer;
     YoutubeCaller youtubeCaller;
+    RecyclerViewInitializer recyclerViewInitializer;
     SwipeRefreshLayout swipeRefreshLayout;
-    String query = null;
 
     /////////////////////MENU///////////////////////
     @Override
@@ -71,70 +69,55 @@ public class HomePage extends Fragment {
     }
     ////////////////////////////////////////////////////////
 
-
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
-    public String getQuery() {
-        if(query != null){
-            return query;
-        }else {
-            return null;
-        }
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        v = inflater.inflate(R.layout.home_page, container, false);
-        setQuery("Synthwave");
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(R.string.home_page);
+        v = inflater.inflate(R.layout.fragment_playlist_1, container, false);
         progressBar = (ProgressBar)v.findViewById(R.id.progressBar);
-        recyclerViewInitializer = new RecyclerViewInitializer();
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Playlist 1");
+        playlist_id = "PL3Xkcd7UEoUNP_NKOCDU0IyOpzT5hKsbD";
         youtubeCaller = new YoutubeCaller(getContext(),GoogleGlobalCredential.getKEY(),
                 GoogleGlobalCredential.getPACKAGENAME(),GoogleGlobalCredential.getSHA1());
+        recyclerViewInitializer = new RecyclerViewInitializer();
         swipeRefreshLayout = (SwipeRefreshLayout)v.findViewById(R.id.swipeContainer);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                new refreshList().execute();
+                new updateList().execute();
             }
         });
         swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-        new loadingList().execute();
+        new Playlist_1.loadingList().execute();
         return v;
     }
 
-    //////////////LOAD DATA///////////////////
-    public class loadingList extends AsyncTask<ArrayList<SearchResult>, Void, ArrayList<SearchResult>> {
+    public class loadingList extends AsyncTask<ArrayList<PlaylistItem>, Void, ArrayList<PlaylistItem>> {
         @Override
-        protected ArrayList<SearchResult> doInBackground(ArrayList<SearchResult>... arrayLists) {
+        protected ArrayList<PlaylistItem> doInBackground(ArrayList<PlaylistItem>... arrayLists) {
+
             SharedPreferences prefs = getActivity().getSharedPreferences(MainHub.TOKEN_TAG,Context.MODE_PRIVATE);
             if(prefs != null){
                 String token = prefs.getString(MainHub.TOKEN_TAG,null);
                 //Log.d(TAG, "TokenUser: " + token);
-                final ArrayList<SearchResult> outputList = youtubeCaller.GetVideoFromQuery(getQuery(),30,token,null,null);
+                final ArrayList<PlaylistItem> outputList = youtubeCaller.GetVideoFromPlaylistID(playlist_id,30,token,null,null);
                 return outputList;
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(ArrayList<SearchResult> items) {
+        protected void onPostExecute(ArrayList<PlaylistItem> items) {
             super.onPostExecute(items);
             progressBar.setVisibility(View.GONE);
             if(items == null || items.isEmpty()){
-                Toast.makeText(getContext(),"Connection Error",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),"Error",Toast.LENGTH_SHORT).show();
             }else {
-                recyclerViewInitializer.initRecyclerViewQuery(getContext(),v,items);
-                SongAdapter adapter = recyclerViewInitializer.getSongAdapter();
+                recyclerViewInitializer.initRecyclerViewPlayList(getContext(),v,items);
             }
             swipeRefreshLayout.setRefreshing(false);
-
         }
 
         @Override
@@ -144,26 +127,29 @@ public class HomePage extends Fragment {
         }
 
     }
-    public class refreshList extends AsyncTask<ArrayList<SearchResult>, Void, ArrayList<SearchResult>> {
+
+    public class updateList extends AsyncTask<ArrayList<PlaylistItem>, Void, ArrayList<PlaylistItem>> {
         @Override
-        protected ArrayList<SearchResult> doInBackground(ArrayList<SearchResult>... arrayLists) {
+        protected ArrayList<PlaylistItem> doInBackground(ArrayList<PlaylistItem>... arrayLists) {
+
             SharedPreferences prefs = getActivity().getSharedPreferences(MainHub.TOKEN_TAG,Context.MODE_PRIVATE);
             if(prefs != null){
                 String token = prefs.getString(MainHub.TOKEN_TAG,null);
                 //Log.d(TAG, "TokenUser: " + token);
-                final ArrayList<SearchResult> outputList = youtubeCaller.GetVideoFromQuery(getQuery(),30,token,null,null);
+                final ArrayList<PlaylistItem> outputList = youtubeCaller.GetVideoFromPlaylistID(playlist_id,30,token,null,null);
                 return outputList;
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(ArrayList<SearchResult> items) {
+        protected void onPostExecute(ArrayList<PlaylistItem> items) {
             super.onPostExecute(items);
             if(items == null || items.isEmpty()){
-                Toast.makeText(getContext(),"Connection Error",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),"Error",Toast.LENGTH_SHORT).show();
             }else {
-                SongAdapter adapter = recyclerViewInitializer.getSongAdapter();
+
+                PlayListAdapter adapter = recyclerViewInitializer.getPlayListAdapter();
                 if(adapter != null) {
                     adapter.clear();
                     adapter.addAll(items);
@@ -172,71 +158,38 @@ public class HomePage extends Fragment {
                 }
             }
             swipeRefreshLayout.setRefreshing(false);
-
-        }
-    }
-    public class updateList_next extends AsyncTask<ArrayList<SearchResult>, Void, ArrayList<SearchResult>> {
-        @Override
-        protected ArrayList<SearchResult> doInBackground(ArrayList<SearchResult>... arrayLists) {
-            SharedPreferences prefs = getActivity().getSharedPreferences(MainHub.TOKEN_TAG,Context.MODE_PRIVATE);
-            if(prefs != null){
-                String token = prefs.getString(MainHub.TOKEN_TAG,null);
-                //Log.d(TAG, "TokenUser: " + token);
-                final ArrayList<SearchResult> outputList = youtubeCaller.GetVideoFromQuery(getQuery(),30,token,YoutubeCaller.getNextPageToken(),null);
-                return outputList;
-            }
-            return null;
         }
 
-        @Override
-        protected void onPostExecute(ArrayList<SearchResult> items) {
-            super.onPostExecute(items);
-            progressBar.setVisibility(View.GONE);
-            if(items == null || items.isEmpty()){
-                Toast.makeText(getContext(),"Connection Error",Toast.LENGTH_SHORT).show();
-            }else {
-                SongAdapter adapter = recyclerViewInitializer.getSongAdapter();
-                if(adapter != null) {
-                    adapter.clear();
-                    adapter.addAll(items);
-                }else {
-                    new loadingList().execute();
-                }
-            }
-            swipeRefreshLayout.setRefreshing(false);
-
-        }
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            SongAdapter adapter = recyclerViewInitializer.getSongAdapter();
-            if(adapter != null){
-                adapter.clear();
-            }
-            progressBar.setVisibility(View.VISIBLE);
+
         }
+
     }
-    public class updateList_prev extends AsyncTask<ArrayList<SearchResult>, Void, ArrayList<SearchResult>> {
+
+    public class updateList_next extends AsyncTask<ArrayList<PlaylistItem>, Void, ArrayList<PlaylistItem>> {
         @Override
-        protected ArrayList<SearchResult> doInBackground(ArrayList<SearchResult>... arrayLists) {
+        protected ArrayList<PlaylistItem> doInBackground(ArrayList<PlaylistItem>... arrayLists) {
+
             SharedPreferences prefs = getActivity().getSharedPreferences(MainHub.TOKEN_TAG,Context.MODE_PRIVATE);
             if(prefs != null){
                 String token = prefs.getString(MainHub.TOKEN_TAG,null);
                 //Log.d(TAG, "TokenUser: " + token);
-                final ArrayList<SearchResult> outputList = youtubeCaller.GetVideoFromQuery(getQuery(),30,token,null,YoutubeCaller.getPrevPageToken());
+                final ArrayList<PlaylistItem> outputList = youtubeCaller.GetVideoFromPlaylistID(playlist_id,30,token,YoutubeCaller.getNextPageToken(),null);
                 return outputList;
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(ArrayList<SearchResult> items) {
+        protected void onPostExecute(ArrayList<PlaylistItem> items) {
             super.onPostExecute(items);
-            progressBar.setVisibility(View.GONE);
             if(items == null || items.isEmpty()){
-                Toast.makeText(getContext(),"Connection Error",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),"Error",Toast.LENGTH_SHORT).show();
             }else {
-                SongAdapter adapter = recyclerViewInitializer.getSongAdapter();
+
+                PlayListAdapter adapter = recyclerViewInitializer.getPlayListAdapter();
                 if(adapter != null) {
                     adapter.clear();
                     adapter.addAll(items);
@@ -245,32 +198,53 @@ public class HomePage extends Fragment {
                 }
             }
             swipeRefreshLayout.setRefreshing(false);
-
         }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            SongAdapter adapter = recyclerViewInitializer.getSongAdapter();
-            if(adapter != null){
-                adapter.clear();
-            }
-            progressBar.setVisibility(View.VISIBLE);
+
         }
-    }
-    ////////////////////////////////////////////////////////
 
-    ////////////Passing Data/////////////////
-    public interface OnDataPass {
-        public void onDataPass(String data);
     }
-    public void passData(String data) {
 
-        dataPasser.onDataPass(data);
-    }
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        dataPasser = (OnDataPass) context;
-    }
-    /////////////////////////////////////////
+    public class updateList_prev extends AsyncTask<ArrayList<PlaylistItem>, Void, ArrayList<PlaylistItem>> {
+        @Override
+        protected ArrayList<PlaylistItem> doInBackground(ArrayList<PlaylistItem>... arrayLists) {
 
+            SharedPreferences prefs = getActivity().getSharedPreferences(MainHub.TOKEN_TAG,Context.MODE_PRIVATE);
+            if(prefs != null){
+                String token = prefs.getString(MainHub.TOKEN_TAG,null);
+                //Log.d(TAG, "TokenUser: " + token);
+                final ArrayList<PlaylistItem> outputList = youtubeCaller.GetVideoFromPlaylistID(playlist_id,30,token,null,YoutubeCaller.getPrevPageToken());
+                return outputList;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<PlaylistItem> items) {
+            super.onPostExecute(items);
+            if(items == null || items.isEmpty()){
+                Toast.makeText(getContext(),"Error",Toast.LENGTH_SHORT).show();
+            }else {
+
+                PlayListAdapter adapter = recyclerViewInitializer.getPlayListAdapter();
+                if(adapter != null) {
+                    adapter.clear();
+                    adapter.addAll(items);
+                }else {
+                    new loadingList().execute();
+                }
+            }
+            swipeRefreshLayout.setRefreshing(false);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+    }
 }

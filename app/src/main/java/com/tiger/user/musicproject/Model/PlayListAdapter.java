@@ -2,18 +2,24 @@ package com.tiger.user.musicproject.Model;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.api.services.youtube.model.PlaylistItem;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.tiger.user.musicproject.Management.YoutubeCaller;
 import com.tiger.user.musicproject.R;
 import com.tiger.user.musicproject.Test_activity;
 
@@ -39,39 +45,42 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
         return viewHolder;
     }
 
+
+
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int i) {
+    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int i) {
         Log.d(TAG, "onBindViewHolder: called");
-        Picasso.get().load(songs.get(i).getSnippet().getThumbnails().getHigh().getUrl()).into(viewHolder.song_image);
+        viewHolder.progressBar.setVisibility(View.VISIBLE);
+        Picasso.get().load(songs.get(i).getSnippet().getThumbnails().getHigh().getUrl())
+                .fit().centerCrop().into(viewHolder.song_image, new Callback() {
+            @Override
+            public void onSuccess() {
+                viewHolder.progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                viewHolder.song_image.setImageResource(R.drawable.placeholder);
+
+            }
+        });
+        Typeface typeface1 = Typeface.createFromAsset(mContext.getAssets(),"font/roboto_regular.ttf");
+        Typeface typeface2 = Typeface.createFromAsset(mContext.getAssets(),"font/roboto_light.ttf");
         viewHolder.song_title.setText(songs.get(i).getSnippet().getTitle());
+        viewHolder.song_title.setTypeface(typeface1);
         viewHolder.song_artist.setText(songs.get(i).getSnippet().getChannelTitle());
-        Log.d(TAG, "onBindViewHolder: "+ songs.get(i).getSnippet().getChannelTitle());
+        viewHolder.song_artist.setTypeface(typeface2);
+        //Log.d(TAG, "onBindViewHolder: " + songs.get(i).getSnippet().getChannelTitle());
         viewHolder.relative_songlist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Toast.makeText(mContext,songs.get(i).getSnippet().getTitle(),Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(mContext,Test_activity.class);
-                intent.putExtra(VIDEO_ID,songs.get(i).getSnippet().getResourceId().getVideoId());
+                Intent intent = new Intent(mContext, Test_activity.class);
+                intent.putExtra(VIDEO_ID, songs.get(i).getSnippet().getResourceId().getVideoId());
                 mContext.startActivity(intent);
             }
         });
-        /*Picasso.get().load(songs.get(i).album.images.get(0).url).into(viewHolder.song_image);
-        viewHolder.song_title.setText(songs.get(i).album.name);
-        viewHolder.song_artist.setText(songs.get(i).artists.get(0).name);
-        viewHolder.relative_songlist.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "onClick: "+ songs.get(i).name);
-                //Toast.makeText(mContext,songs.get(i).album.name,Toast.LENGTH_SHORT).show();
-                AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                Bundle data = new Bundle();
-                data.putString("Song_ID",songs.get(i).album.id);
-                Log.d(TAG, "Song_ID "+data.getString("Song_ID"));
-                Player player = new Player();
-                player.setArguments(data);
-                activity.getSupportFragmentManager().beginTransaction().replace(R.id.player_frame,player).commit();
-            }
-        });*/
+
     }
 
     @Override
@@ -80,11 +89,23 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
     }
 
 
+
+    public void clear() {
+        songs.clear();
+        notifyDataSetChanged();
+    }
+    public void addAll(ArrayList<PlaylistItem> list) {
+        songs.addAll(list);
+        notifyDataSetChanged();
+    }
+
+
     public class ViewHolder extends RecyclerView.ViewHolder{
         ImageView song_image;
         TextView song_title;
         TextView song_artist;
-        RelativeLayout relative_songlist;
+        CardView relative_songlist;
+        ProgressBar progressBar;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -92,6 +113,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
             song_title = itemView.findViewById(R.id.song_title);
             song_artist = itemView.findViewById(R.id.song_artist);
             relative_songlist = itemView.findViewById(R.id.relative_songlist);
+            progressBar = itemView.findViewById(R.id.song_progressBar);
         }
     }
 }

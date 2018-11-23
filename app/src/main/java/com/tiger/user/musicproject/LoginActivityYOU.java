@@ -1,53 +1,34 @@
 package com.tiger.user.musicproject;
 
-import com.google.android.gms.auth.GoogleAuthException;
-import com.google.android.gms.auth.GoogleAuthUtil;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.ExponentialBackOff;
-
-import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.YouTubeRequest;
-import com.google.api.services.youtube.YouTubeScopes;
-
-import com.google.api.services.youtube.model.*;
-import com.tiger.user.musicproject.Management.GoogleGlobalCredential;
-
 import android.Manifest;
 import android.accounts.AccountManager;
-import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.youtube.YouTubeScopes;
+import com.tiger.user.musicproject.Management.GoogleGlobalCredential;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -69,6 +50,7 @@ public class LoginActivityYOU extends AppCompatActivity implements EasyPermissio
     /////////////////////////////////////
 
     private TextView status;
+    ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,8 +59,33 @@ public class LoginActivityYOU extends AppCompatActivity implements EasyPermissio
                 .setBackOff(new ExponentialBackOff());
         final Button getAc = (Button)findViewById(R.id.getAc);
         status = (TextView)findViewById(R.id.status01);
-        CheckConditions();
-        CheckConditions();
+        final Button login = (Button)findViewById(R.id.getAc);
+        Typeface typeface = Typeface.createFromAsset(this.getAssets(), "font/roboto_regular.ttf");
+        login.setTypeface(typeface);
+        login.setEnabled(false);
+        login.setVisibility(View.GONE);
+        progressDialog = new ProgressDialog(LoginActivityYOU.this);
+        progressDialog.setMessage("Loading...");
+        ImageView logo = (ImageView)findViewById(R.id.logo);
+        Animation intro = AnimationUtils.loadAnimation(LoginActivityYOU.this,R.anim.logo);
+        logo.startAnimation(intro);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                login.setVisibility(View.VISIBLE);
+                Animation button_slide = AnimationUtils.loadAnimation(LoginActivityYOU.this,R.anim.slide);
+                login.startAnimation(button_slide);
+                login.setEnabled(true);
+            }
+        },800);
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                progressDialog.show();
+                CheckConditions();
+                CheckConditions();
+            }
+        });
     }
     private void CheckConditions() {
         if (! isGooglePlayServicesAvailable()) {
@@ -86,14 +93,18 @@ public class LoginActivityYOU extends AppCompatActivity implements EasyPermissio
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
         } else if (! isDeviceOnline()) {
+            progressDialog.hide();
             status.setText("No network connection available.");
         } else {
             //new MakeRequestTask(mCredential).execute();
+            progressDialog.hide();
             status.setText("Everything OK!");
             GoogleGlobalCredential googleGlobalCredential =  ((GoogleGlobalCredential)getApplicationContext());
             googleGlobalCredential.setmCredential(mCredential);
             Intent intent = new Intent(LoginActivityYOU.this,MainHub.class);
-            startActivity(intent);
+            ActivityOptions options = ActivityOptions.makeCustomAnimation(LoginActivityYOU.this,R.anim.fade_in,R.anim.fade_out);
+            startActivity(intent,options.toBundle());
+            finish();
         }
     }
     @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
@@ -126,6 +137,7 @@ public class LoginActivityYOU extends AppCompatActivity implements EasyPermissio
         switch(requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
+                    progressDialog.hide();
                     status.setText(
                             "This app requires Google Play Services. Please install " +
                                     "Google Play Services on your device and relaunch this app.");

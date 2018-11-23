@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#9900cc</color>
-    <color name="colorPrimaryDark">#600080</color>
-    <color name="colorAccent">#8080ff</color>
-    <color name="backgroundColor">#1a0000</color>
+    <color name="colorPrimary">#37474F</color>
+    <color name="colorPrimaryDark">#263238 </color>
+    <color name="colorAccent">#00ACC1</color>
+    <color name="backgroundColor">#263238</color>
     <color name="textColor">@android:color/white</color>
-    <color name="drawerColor">#bf4080</color>
+    <color name="headerColor">#263238</color>
+    <color name="buttonColor">#78909C</color>
+    <color name="cardColor">#99ceff</color>
+    <color name="transparent">#00000000</color>
 </resources>
