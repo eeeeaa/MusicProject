@@ -8,7 +8,7 @@ Music Streaming App project.
 - create database server
 - add playlist tabs
 - log-in activity need work
-- use Access token instead of API key
+- use Access token instead of API key (implemented)
 
 ### Group members:
 - Jom Thananont Chevaphatrakul
