@@ -11,8 +11,8 @@ Music Streaming App project.
 - use Access token instead of API key (implemented)
 
 ### Group members:
-- Jom Thananont Chevaphatrakul
-- Perth Sirikarn Yodvanich
-- Perth Praewpun cheevamongkol
+- Thananont Chevaphatrakul
+- Sirikarn Yodvanich
+- Praewpun cheevamongkol
 - Tantai Layluxsiri
 
