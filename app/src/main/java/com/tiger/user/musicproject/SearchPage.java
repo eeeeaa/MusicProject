@@ -3,6 +3,7 @@ package com.tiger.user.musicproject;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -59,6 +60,7 @@ public class SearchPage extends Fragment{
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Log.d(TAG, "onQueryTextSubmit: " + query);
+                swipeRefreshLayout.setEnabled(true);
                 setQuery(query);
                 new loadingList().execute();
                 return false;
@@ -66,6 +68,7 @@ public class SearchPage extends Fragment{
             @Override
             public boolean onQueryTextChange(String newText) {
                 SongAdapter adapter = recyclerViewInitializer.getSongAdapter();
+                swipeRefreshLayout.setEnabled(false);
                 if(adapter != null){
                     adapter.clear();
                 }
@@ -128,16 +131,21 @@ public class SearchPage extends Fragment{
         youtubeCaller = new YoutubeCaller(getContext(),GoogleGlobalCredential.getKEY(),
                 GoogleGlobalCredential.getPACKAGENAME(),GoogleGlobalCredential.getSHA1());
         swipeRefreshLayout = (SwipeRefreshLayout)v.findViewById(R.id.swipeContainer);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            swipeRefreshLayout.setProgressViewOffset(false, 0,((MainHub)((AppCompatActivity)getActivity())).getSupportActionBar().getHeight());
+        }
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 new refreshList().execute();
             }
         });
+        swipeRefreshLayout.setProgressBackgroundColorSchemeColor(getResources().getColor(R.color.colorPrimaryDark));
         swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
+        swipeRefreshLayout.setEnabled(false);
         return v;
     }
 

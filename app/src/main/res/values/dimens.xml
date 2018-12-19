@@ -5,4 +5,7 @@
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="bar_image_size">50dp</dimen>
+    <dimen name="full_width">400dp</dimen>
+    <dimen name="full_height">250dp</dimen>
 </resources>

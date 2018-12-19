@@ -1,6 +1,7 @@
 package com.tiger.user.musicproject;
 
 import android.Manifest;
+import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.ActivityOptions;
 import android.app.Dialog;
@@ -8,6 +9,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -15,11 +17,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -50,22 +54,28 @@ public class LoginActivityYOU extends AppCompatActivity implements EasyPermissio
     /////////////////////////////////////
 
     private TextView status;
-    ProgressDialog progressDialog;
+    //ProgressDialog progressDialog;
+    ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_layout);
         mCredential = GoogleAccountCredential.usingOAuth2(LoginActivityYOU.this, Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
-        final Button getAc = (Button)findViewById(R.id.getAc);
+
         status = (TextView)findViewById(R.id.status01);
         final Button login = (Button)findViewById(R.id.getAc);
         Typeface typeface = Typeface.createFromAsset(this.getAssets(), "font/roboto_regular.ttf");
         login.setTypeface(typeface);
         login.setEnabled(false);
         login.setVisibility(View.GONE);
-        progressDialog = new ProgressDialog(LoginActivityYOU.this);
-        progressDialog.setMessage("Loading...");
+
+        //progressDialog = new ProgressDialog(LoginActivityYOU.this);
+        //progressDialog.setMessage("Loading...");
+        progressBar = (ProgressBar)findViewById(R.id.loading_bar);
+        Resources res = getResources();
+        progressBar.setProgressDrawable(res.getDrawable(R.drawable.progress));
+        progressBar.setVisibility(View.GONE);
         ImageView logo = (ImageView)findViewById(R.id.logo);
         Animation intro = AnimationUtils.loadAnimation(LoginActivityYOU.this,R.anim.logo);
         logo.startAnimation(intro);
@@ -81,8 +91,7 @@ public class LoginActivityYOU extends AppCompatActivity implements EasyPermissio
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                progressDialog.show();
-                CheckConditions();
+                progressBar.setVisibility(View.VISIBLE);
                 CheckConditions();
             }
         });
@@ -91,38 +100,50 @@ public class LoginActivityYOU extends AppCompatActivity implements EasyPermissio
         if (! isGooglePlayServicesAvailable()) {
             acquireGooglePlayServices();
         } else if (mCredential.getSelectedAccountName() == null) {
+            Log.d(TAG, "CheckConditions: "+ "choose");
             chooseAccount();
         } else if (! isDeviceOnline()) {
-            progressDialog.hide();
+            progressBar.setVisibility(View.GONE);
             status.setText("No network connection available.");
         } else {
-            //new MakeRequestTask(mCredential).execute();
-            progressDialog.hide();
-            status.setText("Everything OK!");
-            GoogleGlobalCredential googleGlobalCredential =  ((GoogleGlobalCredential)getApplicationContext());
-            googleGlobalCredential.setmCredential(mCredential);
-            Intent intent = new Intent(LoginActivityYOU.this,MainHub.class);
-            ActivityOptions options = ActivityOptions.makeCustomAnimation(LoginActivityYOU.this,R.anim.fade_in,R.anim.fade_out);
-            startActivity(intent,options.toBundle());
-            finish();
+            launchActivity();
         }
+    }
+    private void launchActivity(){
+        progressBar.setVisibility(View.GONE);
+        status.setText("Everything OK!");
+        GoogleGlobalCredential googleGlobalCredential =  ((GoogleGlobalCredential)getApplicationContext());
+        if(mCredential != null){
+            googleGlobalCredential.setmCredential(mCredential);
+        }else{
+            googleGlobalCredential.setmCredential(null);
+        }
+        Intent intent = new Intent(LoginActivityYOU.this,MainHub.class);
+        ActivityOptions options = ActivityOptions.makeCustomAnimation(LoginActivityYOU.this,R.anim.fade_in,R.anim.fade_out);
+        startActivity(intent,options.toBundle());
+        finish();
     }
     @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
     private void chooseAccount() {
         if (EasyPermissions.hasPermissions(
                 this, Manifest.permission.GET_ACCOUNTS)) {
+            Log.d(TAG, "chooseAccount: " + "has permission");
             String accountName = getPreferences(Context.MODE_PRIVATE)
                     .getString(PREF_ACCOUNT_NAME, null);
             if (accountName != null) {
-                mCredential.setSelectedAccountName(accountName);
+                mCredential.setSelectedAccount(new Account(accountName, "com.tiger.user.musicproject"));
+                Log.d(TAG, "chooseAccount: " + "have it " + mCredential.getSelectedAccountName());
+                CheckConditions();
             } else {
                 // Start a dialog from which the user can choose an account
+                Log.d(TAG, "chooseAccount: " + "choosing");
                 startActivityForResult(
                         mCredential.newChooseAccountIntent(),
                         REQUEST_ACCOUNT_PICKER);
             }
         } else {
             // Request the GET_ACCOUNTS permission via a user dialog
+            Log.d(TAG, "chooseAccount: " + "dont have permission");
             EasyPermissions.requestPermissions(
                     this,
                     "This app needs to access your Google account (via Contacts).",
@@ -137,7 +158,7 @@ public class LoginActivityYOU extends AppCompatActivity implements EasyPermissio
         switch(requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
-                    progressDialog.hide();
+                    progressBar.setVisibility(View.GONE);
                     status.setText(
                             "This app requires Google Play Services. Please install " +
                                     "Google Play Services on your device and relaunch this app.");
@@ -157,7 +178,7 @@ public class LoginActivityYOU extends AppCompatActivity implements EasyPermissio
                         SharedPreferences.Editor editor = settings.edit();
                         editor.putString(PREF_ACCOUNT_NAME, accountName);
                         editor.apply();
-                        mCredential.setSelectedAccountName(accountName);
+                        mCredential.setSelectedAccount(new Account(accountName, "com.tiger.user.musicproject"));
                         CheckConditions();
                     }
                 }
@@ -220,6 +241,14 @@ public class LoginActivityYOU extends AppCompatActivity implements EasyPermissio
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
+    }
+
+    public void clearSharedPref (){
+        SharedPreferences preferences =getSharedPreferences("loginPrefs",Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.commit();
+        finish();
     }
 }
 

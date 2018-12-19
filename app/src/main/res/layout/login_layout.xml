@@ -16,16 +16,28 @@
         android:src="@drawable/logo_main"
         android:layout_centerHorizontal="true"
         android:background="@color/transparent"/>
-
-    <TextView
-        android:id="@+id/status01"
+    <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/getAc"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
-        android:textColor="#e2bbbbbb"
-        android:background="@color/transparent"/>
+        android:background="@color/transparent">
+        <TextView
+            android:id="@+id/status01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#e2bbbbbb"
+            android:background="@color/transparent"/>
+        <ProgressBar
+            android:id="@+id/loading_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:selectableItemBackground"/>
+
+    </FrameLayout>
+
+
 
     <Button
         android:id="@+id/getAc"

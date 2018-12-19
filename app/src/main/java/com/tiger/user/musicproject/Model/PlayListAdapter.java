@@ -3,7 +3,10 @@ package com.tiger.user.musicproject.Model;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,15 +22,16 @@ import android.widget.Toast;
 import com.google.api.services.youtube.model.PlaylistItem;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.tiger.user.musicproject.MainHub;
 import com.tiger.user.musicproject.Management.YoutubeCaller;
 import com.tiger.user.musicproject.R;
 import com.tiger.user.musicproject.Test_activity;
+import com.tiger.user.musicproject.Test_player;
 
 import java.util.ArrayList;
 
 public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHolder>{
     private static final String TAG = "SongAdapter";
-    public static final String VIDEO_ID = "VideoID";
     private ArrayList<PlaylistItem> songs;
     private Context mContext;
 
@@ -74,10 +78,17 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
         viewHolder.relative_songlist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Toast.makeText(mContext,songs.get(i).getSnippet().getTitle(),Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(mContext, Test_activity.class);
-                intent.putExtra(VIDEO_ID, songs.get(i).getSnippet().getResourceId().getVideoId());
-                mContext.startActivity(intent);
+                ((MainHub)mContext).showPanel();
+                FragmentManager fm = ((AppCompatActivity)mContext).getSupportFragmentManager();
+                Bundle data = new Bundle();
+                data.putString("song_title",songs.get(i).getSnippet().getTitle());
+                data.putString("song_artist",songs.get(i).getSnippet().getChannelTitle());
+                data.putString("img_url",songs.get(i).getSnippet().getThumbnails().getHigh().getUrl());
+                //playlist items
+                data.putString(SongAdapter.VIDEO_ID,songs.get(i).getSnippet().getResourceId().getVideoId());
+                Test_player player = new Test_player();
+                player.setArguments(data);
+                fm.beginTransaction().replace(R.id.player_frame_drag,player).commit();
             }
         });
 

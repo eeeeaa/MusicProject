@@ -1,6 +1,7 @@
 package com.tiger.user.musicproject.Management;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 
@@ -29,4 +30,5 @@ public class GoogleGlobalCredential extends Application {
     public static String getSHA1() {
         return SHA1;
     }
+
 }

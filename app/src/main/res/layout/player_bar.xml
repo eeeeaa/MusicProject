@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:id="@+id/player_header"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@drawable/player_bar_gredient"
+        android:gravity="center|top"
+        android:padding="15dp">
+
+        <FrameLayout
+            android:id="@+id/image_frame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            >
+
+            <ImageView
+                android:id="@+id/bar_cover_art"
+                android:layout_width="@dimen/bar_image_size"
+                android:layout_height="@dimen/bar_image_size"
+                android:scaleType="fitXY"
+                 />
+
+            <ProgressBar
+                android:id="@+id/bar_progress"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:elevation="2dp" />
+        </FrameLayout>
+        <FrameLayout
+            android:id="@+id/play_header_frame"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="280dp"
+            android:background="@color/transparent">
+            <ImageButton
+                android:id="@+id/play_header_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="fitXY"
+                android:tint="@color/textColor"
+                android:background="@color/transparent"
+                android:src="@drawable/ic_play_no_circle"
+                />
+            <ProgressBar
+                android:id="@+id/bar_play_progress"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                style="?android:attr/progressBarStyle"
+                android:layout_gravity="center"
+                android:background="@color/transparent"
+                android:elevation="2dp"/>
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/player_header_title"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/play_header_frame"
+            android:layout_centerHorizontal="true"
+            android:background="@color/transparent"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:textAlignment="center"
+            android:singleLine="true"
+            android:text="title"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:focusable="true"
+            android:focusableInTouchMode="true"/>
+
+        <TextView
+            android:id="@+id/player_header_artist"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/player_header_title"
+            android:layout_alignBottom="@id/play_header_frame"
+            android:layout_centerHorizontal="true"
+            android:background="@color/transparent"
+            android:ellipsize="marquee"
+            android:maxLength="10"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:textAlignment="center"
+            android:text="artist"
+            android:textSize="10sp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/player_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/player_header"
+        >
+        <ImageButton
+            android:id="@+id/favorite_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="10dp"
+            android:scaleType="fitXY"
+            android:tint="@android:color/holo_red_dark"
+            android:layout_toRightOf="@id/player_full_title"
+            android:background="@color/transparent"
+            android:src="@drawable/ic_favorite_off"
+            />
+
+        <TextView
+            android:id="@+id/player_full_title"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@color/transparent"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:textAlignment="center"
+            android:layout_marginTop="5dp"
+            android:text="title" />
+
+        <TextView
+            android:id="@+id/player_full_artist"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/player_full_title"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:background="@color/transparent"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:textAlignment="center"
+            android:text="artist" />
+        <ImageView
+            android:id="@+id/play_full_cover_art"
+            android:layout_width="400dp"
+            android:layout_height="250dp"
+            android:layout_below="@id/player_full_artist"
+            android:layout_marginTop="20dp"
+            android:background="@android:color/black"
+            android:elevation="-2dp"
+            android:scaleType="centerCrop" />
+
+        <RelativeLayout
+            android:id="@+id/player_full"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="30dp"
+            android:padding="15dp"
+            android:background="@color/transparent">
+            <ImageButton
+                android:id="@+id/player_full_replay_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_replay"
+                android:scaleType="fitXY"
+                android:tint="@color/textColor"
+                android:background="@color/transparent"
+                android:layout_alignParentRight="true"
+                android:layout_alignBottom="@id/player_full_current_time"
+                />
+
+            <TextView
+                android:id="@+id/player_full_current_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginBottom="13dp"
+                android:text="time"
+                android:background="@color/transparent"/>
+
+            <SeekBar
+                android:layout_below="@id/player_full_current_time"
+                android:id="@+id/player_full_seekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

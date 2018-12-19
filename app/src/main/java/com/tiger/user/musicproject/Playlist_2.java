@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -41,12 +42,16 @@ public class Playlist_2 extends Playlist_1 {
                 GoogleGlobalCredential.getPACKAGENAME(),GoogleGlobalCredential.getSHA1());
         recyclerViewInitializer = new RecyclerViewInitializer();
         swipeRefreshLayout = (SwipeRefreshLayout)v.findViewById(R.id.swipeContainer);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            swipeRefreshLayout.setProgressViewOffset(false, 0,((MainHub)((AppCompatActivity)getActivity())).getSupportActionBar().getHeight());
+        }
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 new Playlist_2.updateList().execute();
             }
         });
+        swipeRefreshLayout.setProgressBackgroundColorSchemeColor(getResources().getColor(R.color.colorPrimaryDark));
         swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
