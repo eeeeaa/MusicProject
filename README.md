@@ -8,11 +8,11 @@ Music Streaming App project.
 - create database server
 - add playlist tabs
 - log-in activity need work
-- use Access token instead of API key
+- use Access token instead of API key (implemented)
 
 ### Group members:
-- Jom Thananont Chevaphatrakul
-- Perth Sirikarn Yodvanich
-- Perth Praewpun cheevamongkol
+- Thananont Chevaphatrakul
+- Sirikarn Yodvanich
+- Praewpun cheevamongkol
 - Tantai Layluxsiri
 
