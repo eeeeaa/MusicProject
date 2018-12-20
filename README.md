@@ -2,7 +2,10 @@
 Music Streaming App project.
 ## Current name: CloudPlay
 
-## TODO List <20/20/2018>:
+## Content:
+- application source files
+- Servers: flask and other custom servers
+- Group report and presentation scripts
 
 ### Group members:
 - Thananont Chevaphatrakul
