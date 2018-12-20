@@ -104,6 +104,7 @@ public class Test_player extends Fragment implements SeekBar.OnSeekBarChangeList
     Intent intentSeekBar;
 
     public static final String Broadcast_PLAY = "com.tiger.user.musicproject.playPauseAudio";
+    public static final String Broadcast_REPLAY = "com.tiger.user.musicproject.replayAudio";
     public static final String Broadcast_DESTROY = "com.tiger.user.musicproject.destroy";
     public static final String Broadcast_SEEKBAR = "com.tiger.user.musicproject.seekBar";
 
@@ -153,6 +154,12 @@ public class Test_player extends Fragment implements SeekBar.OnSeekBarChangeList
         full_currentTime = (TextView)v.findViewById(R.id.player_full_current_time);
         //replay
         full_replay_button = (ImageButton)v.findViewById(R.id.player_full_replay_button);
+        full_replay_button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                replay();
+            }
+        });
 
         player_header = (RelativeLayout)v.findViewById(R.id.player_header);
         player_main = (RelativeLayout)v.findViewById(R.id.player_main);
@@ -415,7 +422,13 @@ public class Test_player extends Fragment implements SeekBar.OnSeekBarChangeList
         }
         Intent intent = new Intent(Broadcast_PLAY);
         getActivity().sendBroadcast(intent);
-        Log.d("broadCastIntent","sent");
+    }
+
+    private void replay(){
+        bar_play.setImageResource(R.drawable.ic_play_no_circle);
+        full_currentTime.setText("buffering...");
+        Intent intent = new Intent(Broadcast_REPLAY);
+        getActivity().sendBroadcast(intent);
     }
 
     private void destroyService(){
@@ -433,10 +446,21 @@ public class Test_player extends Fragment implements SeekBar.OnSeekBarChangeList
     private void updateUI(Intent serviceIntent){
         String counter = serviceIntent.getStringExtra("counter");
         String mediamax = serviceIntent.getStringExtra("mediamax");
+        String tempSec;
         int seekProgress = Integer.parseInt(counter);
         seekMax = Integer.parseInt(mediamax);
+        int seconds = ((seekProgress/1000)%60);
+        if(seconds < 10){
+            tempSec = "0" + Integer.toString(seconds);
+        }else{
+            tempSec = Integer.toString(seconds);
+        }
+        int minutes = ((seekProgress/1000)/60);
+        int secondsMax = ((seekMax/1000)%60);
+        int minutesMax = ((seekMax/1000)/60);
         full_seekBar.setMax(seekMax);
         full_seekBar.setProgress(seekProgress);
+        full_currentTime.setText(minutes+":"+tempSec+" / "+minutesMax+":"+secondsMax);
     }
 
     public void registerReceiver() {
@@ -468,33 +492,33 @@ public class Test_player extends Fragment implements SeekBar.OnSeekBarChangeList
     ///////////////// Favorite functions /////////////////////
     public void findVideo(final String video_id,final String videoName,final String thumbnail){
         Thread thread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            FavoriteCommand favoriteCommand = FavoriteMain.getRetrofit().create(FavoriteCommand.class);
-                            Call<FavoriteModel> call = favoriteCommand.findVideo(video_id);
-                            call.enqueue(new retrofit2.Callback<FavoriteModel>() {
-                                @Override
-                                public void onResponse(Call<FavoriteModel> call, Response<FavoriteModel> response) {
-                                    Log.d(TAG, "FindonResponse: "+ response.code());
-                                    Log.d(TAG, "onResponse: " + response.raw());
-                                    if(response.isSuccessful()) {
-                                        if (response.body().videoId == null) {
-                                            favorite_button.setImageResource(R.drawable.ic_favorite_off);
-                                        } else {
-                                            favorite_button.setImageResource(R.drawable.ic_favorite_on);
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Call<FavoriteModel> call, Throwable t) {
-                                    Log.d(TAG, "FindonFailure: " + t.getMessage());
-
-                                }
-                            });
+            @Override
+            public void run() {
+                FavoriteCommand favoriteCommand = FavoriteMain.getRetrofit().create(FavoriteCommand.class);
+                Call<FavoriteModel> call = favoriteCommand.findVideo(video_id);
+                call.enqueue(new retrofit2.Callback<FavoriteModel>() {
+                    @Override
+                    public void onResponse(Call<FavoriteModel> call, Response<FavoriteModel> response) {
+                        Log.d(TAG, "FindonResponse: "+ response.code());
+                        Log.d(TAG, "onResponse: " + response.raw());
+                        if(response.isSuccessful()) {
+                            if (response.body().videoId == null) {
+                                favorite_button.setImageResource(R.drawable.ic_favorite_off);
+                            } else {
+                                favorite_button.setImageResource(R.drawable.ic_favorite_on);
+                            }
                         }
-                    });
-                    thread.start();
+                    }
+
+                    @Override
+                    public void onFailure(Call<FavoriteModel> call, Throwable t) {
+                        Log.d(TAG, "FindonFailure: " + t.getMessage());
+
+                    }
+                });
+            }
+        });
+        thread.start();
     }
     public void addVideo(final String videoName, final String thumbnail, final String video_id){
         //add video
@@ -548,3 +572,4 @@ public class Test_player extends Fragment implements SeekBar.OnSeekBarChangeList
     }
     ///////////////////////////////////////////////////////
 }
+

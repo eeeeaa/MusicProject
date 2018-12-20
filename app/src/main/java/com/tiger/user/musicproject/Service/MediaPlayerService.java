@@ -39,7 +39,6 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private String mediaFile;
     private int resumePosition;
     private AudioManager audioManager;
-    private String noSameSong;
 
     private final IBinder iBinder = new LocalBinder();
 
@@ -91,7 +90,6 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     public void onPrepared(MediaPlayer mp) {
         playMedia();
         setupHandler();
-        noSameSong = mediaFile;
     }
 
     @Override
@@ -128,7 +126,6 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
         if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            //Focus gained
             return true;
         }
         return false;
@@ -146,27 +143,22 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     private void initMediaPlayer() {
-        if(!mediaFile.equals(noSameSong)){
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setOnCompletionListener(this);
-            mediaPlayer.setOnErrorListener(this);
-            mediaPlayer.setOnPreparedListener(this);
-            mediaPlayer.setOnBufferingUpdateListener(this);
-            mediaPlayer.setOnSeekCompleteListener(this);
-            mediaPlayer.setOnInfoListener(this);
-            mediaPlayer.reset();
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            try {
-                mediaPlayer.setDataSource(mediaFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-                stopSelf();
-            }
-            mediaPlayer.prepareAsync();
-
-        } else {
-
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setOnCompletionListener(this);
+        mediaPlayer.setOnErrorListener(this);
+        mediaPlayer.setOnPreparedListener(this);
+        mediaPlayer.setOnBufferingUpdateListener(this);
+        mediaPlayer.setOnSeekCompleteListener(this);
+        mediaPlayer.setOnInfoListener(this);
+        mediaPlayer.reset();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+            mediaPlayer.setDataSource(mediaFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            stopSelf();
         }
+        mediaPlayer.prepareAsync();
     }
 
     private void setupHandler() {
@@ -234,10 +226,19 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         }
     }
 
+    private void replayMedia() {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+            mediaPlayer.reset();
+            initMediaPlayer();
+        }
+    }
+
     //serviceLifeCycle section
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         registerReceiverForSeekbarChange();
+        registerReceiverForReplay();
         try {
             mediaFile = intent.getExtras().getString("media");
             registerReceiver();
@@ -264,6 +265,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         unregisterReceiver(playNewAudio);
         unregisterReceiver(destroyService);
         unregisterReceiver(updateSeekBar);
+        unregisterReceiver(replayPlayer);
         super.onDestroy();
         if (mediaPlayer != null) {
             stopMedia();
@@ -320,6 +322,19 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         }else{
             return false;
         }
+    }
+
+    private BroadcastReceiver replayPlayer = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            replayMedia();
+        }
+
+    };
+
+    public void registerReceiverForReplay() {
+        IntentFilter filter = new IntentFilter(Test_player.Broadcast_REPLAY);
+        registerReceiver(replayPlayer, filter);
     }
 
 }
